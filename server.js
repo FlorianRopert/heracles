@@ -142,7 +142,8 @@ app.post('/connexion', (req, res) => {
 
 //Vérifie si il est connecté
 app.post('/isConnect', verifToken, (req, res) => {
-
+  console.log('Déjà connecté id : ' + req.user.id + ' login : ' + req.user.login);
+  res.json({ message: 'Connecté', login: req.user.login });
 })
 
 //Verification token
