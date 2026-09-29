@@ -79,5 +79,39 @@ voirMoinsInscription.addEventListener('click', () => {
 
 })
 
+//INSCRIPTION
+
+inscriptionBtn.addEventListener('click', () => {
+
+    // Vérification simple côté client
+    if (username.value === '') {
+        alert('le username est obligatoire !');
+        return;
+    }
+
+    fetch('/inscription', {
+        credentials: 'include',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            nom: nom.value,
+            prenom: prenom.value,
+            email: email.value,
+            password: password.value,
+            username: username.value
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.erreur) {
+                alert(data.erreur.sqlMessage); // Ex: "Mot de passe invalide" ou "Inscription reussie !"
+            } else {
+                alert(data.message);
+            }
+            console.log(data);
+        });
+});
 
 
