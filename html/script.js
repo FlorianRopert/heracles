@@ -114,4 +114,35 @@ inscriptionBtn.addEventListener('click', () => {
         });
 });
 
+//CONNEXION
+connexionBtn.addEventListener('click', () => {
+    fetch('/connexion', {
+        credentials: 'include',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            login: username.value,
+            password: password.value
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message != 'connexion reussi') { // Connexion échouée
+                alert(data.message);
+                console.log(data.message);
+            } else { // Connexion réussie, on sauvegarde la classe dans le localStorage
 
+                //GERER L'AFFICHAGE
+                alert("T'es connecté gros");
+                //Remplissage du local storage
+                localStorage.setItem('idUsers', data.idUsers);
+                //Mettre la page d'acceuile dans le local storage
+                localStorage.setItem('login', data.login);
+
+                ///GERER L'AFFICHAGE
+
+            }
+        })
+})
