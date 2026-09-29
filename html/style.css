@@ -1,0 +1,93 @@
+* {
+    /* border: solid black 1px; */
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+header {
+    width: 100%;
+    height: 10vh;
+}
+
+#heracles {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+#panel {
+    width: 100%;
+    height: 90vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+
+#form {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#form-connexion {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.form-group {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+input {
+    width: 66%;
+    height: 5vh;
+    margin: 0.5rem;
+    max-width: 500px;
+}
+
+.btn-primary {
+    cursor: pointer;
+    user-select: none;
+}
+
+#form-btn-action {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+
+@media (min-width : 992px) {
+    #panel-left {
+        background-color: yellow;
+        width: 45%;
+        height: 100%;
+    }
+}
+
+@media (max-width : 768px) {}
