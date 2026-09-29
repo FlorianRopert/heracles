@@ -166,8 +166,10 @@ function verifToken(req, res, next) {
 }
 
 app.post('/deconnexion', verifToken, (req, res) => {
-
-})
+  res.clearCookie('authtoken');
+  console.log("l'id " + req.user.id + " se déco");
+  res.json({ message: 'Déconnecté' });
+});
 
 //Route pour la suppression du compte (uniquement pour les admin)
 app.post('/suppression', verifToken, (req, res) => {
