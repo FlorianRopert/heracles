@@ -85,8 +85,60 @@ app.post('/inscription', (req, res) => {
 
 //CONNEXION
 app.post('/connexion', (req, res) => {
+  //console.log(req.body);
 
+  //Récupération password dans la base pour la comparaison
+  connection.query(
+    'SELECT password,id,login FROM User WHERE login = ?',
+    [req.body.login], (err, results) => {
+      if (err) {
+        console.log("Erreur récupération login " + err);
+        return;
+      }
+      if (results.length == 0) {
+        console.log("Erreur identifiant");
+        res.json({ message: 'Identifiant ou mot de passe invalides' });
+        return;
+      }
+      //console.log(results[0]);
+      //res.json({ message: 'login trouvé' });
+      let resultat = results[0];
+      bcrypt.compare(req.body.password, resultat.password, (err, results) => {
+        if (err) {
+          console.log('Erreur compare' + err);
+          res.json({ message: 'err hash' });
+          return;
+        }
+        if (results) {
+          console.log('Connexion réussi id : ' + resultat.id + ' Login : ' + resultat.login);
+
+          //Creation du token
+          const token = jwt.sign(
+            { id: resultat.id, login: resultat.login },
+            process.env.JWT_SECRET,
+            { expiresIn: '30d' }
+          );
+
+          res.cookie('authtoken', token, {
+            httpOnly: true, //empêche le JavaScript d'accéder au cookie, donc protège contre le XSS
+            secure: false, // force le cookie à passer uniquement en HTTPS si true                         !!! attention à mettre true en production !!!
+            sameSite: 'strict', //protège contre les attaques CSRF.
+            maxAge: 30 * 24 * 60 * 60 * 1000
+            //maxAge : 10 * 1000
+          })
+
+          res.json({ message: "connexion reussi", login: resultat.login, idUsers: resultat.id });
+
+
+        } else {
+          res.json({ message: 'connexion echoué' });
+          return;
+        }
+      })
+    }
+  )
 })
+
 
 //Vérifie si il est connecté
 app.post('/isConnect', verifToken, (req, res) => {
