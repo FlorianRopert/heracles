@@ -147,6 +147,21 @@ app.post('/isConnect', verifToken, (req, res) => {
 
 //Verification token
 function verifToken(req, res, next) {
+  const token = req.cookies.authtoken;
+
+  if (!token) {
+    return res.status(401).json({ message: 'Non connecté' });
+  }
+
+  //test si le token est valide
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    res.clearCookie('authtoken');
+    return res.status(401).json({ message: 'Token invalide ou expiré' });
+  }
 }
 
 app.post('/deconnexion', verifToken, (req, res) => {
