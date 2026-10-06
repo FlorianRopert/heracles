@@ -143,7 +143,7 @@ app.post('/connexion', (req, res) => {
 //Vérifie si il est connecté
 app.post('/isConnect', verifToken, (req, res) => {
   console.log('Déjà connecté id : ' + req.user.id + ' login : ' + req.user.login);
-  res.json({ message: 'Connecté', login: req.user.login });
+  res.json({ message: 'Connecté', login: req.user.login});
 })
 
 //Verification token
@@ -176,7 +176,7 @@ app.post('/suppression', verifToken, (req, res) => {
 
   if (req.user.admin == 1) {
     connection.query(
-      'DELETE FROM User WHERE id = ? VALUES(?)',
+      'DELETE FROM User WHERE id = ? ',
       [req.body.id], (err) => {
         if (err) { res.json({ message: 'Erreur SQL ' + err }); return; }
         res.json({ message: 'ok' });
@@ -192,7 +192,7 @@ app.post('/suppression', verifToken, (req, res) => {
 app.post('/modification', verifToken, (req, res) => {
   if (req.user.admin == 1) {
     connection.query(
-      'UPDATE User SET admin = ? WHERE id = ? VALUES(?,?)',
+      'UPDATE User SET admin = ? WHERE id = ? ',
       [req.body.status, req.body.id]
     )
   } else if (req.user.admin == 0) {
@@ -229,12 +229,12 @@ app.post('/modifmdp', verifToken, (req, res) => {
     .then(hash => {
       //Insertion dans la base
       connection.query(
-        'UPDATE User SET password = ? WHERE id = ? VALUES(?,?)',
+        'UPDATE User SET password = ? WHERE id = ? ',
         [hash, req.user.id],
         (err, results) => {
           if (err) {
-            console.log('Erreur Insertion dans la base ' + err);
-            res.status(500).json({ message: 'Erreur bdd insertion', erreur: err });
+            console.log('Erreur Update dans la base ' + err);
+            res.status(500).json({ message: 'Erreur bdd update', erreur: err });
             return;
           }
           console.log('Modification reussi');
