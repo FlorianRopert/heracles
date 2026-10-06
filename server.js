@@ -177,7 +177,10 @@ app.post('/suppression', verifToken, (req, res) => {
   if (req.user.admin == 1) {
     connection.query(
       'DELETE FROM User WHERE id = ?',
-      [req.body.id],
+      [req.body.id], (err) => {
+        if (err) { res.json({ message: 'Erreur SQL ' + err }); return; }
+        res.json({ message: 'ok' });
+      }
     )
   } else if (req.user.admin == 0) {
     res.json({ message: "Ne prend pas tes reves pour une réalité, t'es pas admin" });
@@ -195,4 +198,14 @@ app.post('/modification', verifToken, (req, res) => {
   } else if (req.user.admin == 0) {
     res.json({ message: "Ne prend pas tes reves pour une réalité, t'es pas admin" });
   }
+})
+
+//Route pour le mot de passe du compte 
+app.post('/suppression', verifToken, (req, res) => {
+
+  connection.query(
+    'DELETE FROM User WHERE id = ?',
+    [req.body.id]
+  )
+
 })
