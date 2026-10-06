@@ -176,7 +176,7 @@ app.post('/suppression', verifToken, (req, res) => {
 
   if (req.user.admin == 1) {
     connection.query(
-      'DELETE FROM User WHERE id = ?',
+      'DELETE FROM User WHERE id = ? VALUES(?)',
       [req.body.id], (err) => {
         if (err) { res.json({ message: 'Erreur SQL ' + err }); return; }
         res.json({ message: 'ok' });
@@ -192,7 +192,7 @@ app.post('/suppression', verifToken, (req, res) => {
 app.post('/modification', verifToken, (req, res) => {
   if (req.user.admin == 1) {
     connection.query(
-      'UPDATE User SET admin = ? WHERE id = ?',
+      'UPDATE User SET admin = ? WHERE id = ? VALUES(?,?)',
       [req.body.status, req.body.id]
     )
   } else if (req.user.admin == 0) {
@@ -200,12 +200,46 @@ app.post('/modification', verifToken, (req, res) => {
   }
 })
 
-//Route pour le mot de passe du compte 
-app.post('/suppression', verifToken, (req, res) => {
+//Route pour modifier le mot de passe du compte 
+app.post('/modifmdp', verifToken, (req, res) => {
 
-  connection.query(
-    'DELETE FROM User WHERE id = ?',
-    [req.body.id]
-  )
+  if (req.body.password.length < 8) {
+    res.json({ message: 'Mot de passe invalide', error: "length" });
+    return;
+  }
+  if (!/[A-Z]/.test(req.body.password)) {
+    res.json({ message: 'Mot de passe invalide', error: "Majuscule" });
+    return;
+  }
+  if (!/[a-z]/.test(req.body.password)) {
+    res.json({ message: 'Mot de passe invalide', error: "Minuscule" });
+    return;
+  }
+  if (!/[0-9]/.test(req.body.password)) {
+    res.json({ message: 'Mot de passe invalide', error: "Chiffre" });
+    return;
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(req.body.password)) {
+    res.json({ message: 'Mot de passe invalide', error: "Carractère spécial" });
+    return;
+  }
 
+  //Hachage mot de passe 
+  bcrypt.hash(req.body.password, 10)
+    .then(hash => {
+      //Insertion dans la base
+      connection.query(
+        'UPDATE User SET password = ? WHERE id = ? VALUES(?,?)',
+        [hash, req.user.id],
+        (err, results) => {
+          if (err) {
+            console.log('Erreur Insertion dans la base ' + err);
+            res.status(500).json({ message: 'Erreur bdd insertion', erreur: err });
+            return;
+          }
+          console.log('Modification reussi');
+          res.json({ message: 'Modification reussi !' });
+        }
+      )
+    })
 })
