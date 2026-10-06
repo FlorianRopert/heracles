@@ -89,7 +89,7 @@ app.post('/connexion', (req, res) => {
 
   //Récupération password dans la base pour la comparaison
   connection.query(
-    'SELECT password,id,login FROM User WHERE login = ?',
+    'SELECT password,id,login,admin FROM User WHERE login = ?',
     [req.body.login], (err, results) => {
       if (err) {
         console.log("Erreur récupération login " + err);
@@ -114,7 +114,7 @@ app.post('/connexion', (req, res) => {
 
           //Creation du token
           const token = jwt.sign(
-            { id: resultat.id, login: resultat.login },
+            { id: resultat.id, login: resultat.login, admin: resultat.admin },
             process.env.JWT_SECRET,
             { expiresIn: '30d' }
           );
@@ -174,9 +174,25 @@ app.post('/deconnexion', verifToken, (req, res) => {
 //Route pour la suppression du compte (uniquement pour les admin)
 app.post('/suppression', verifToken, (req, res) => {
 
+  if (req.user.admin == 1) {
+    connection.query(
+      'DELETE FROM User WHERE id = ?',
+      [req.body.id],
+    )
+  } else if (req.user.admin == 0) {
+    res.json({ message: "Ne prend pas tes reves pour une réalité, t'es pas admin" });
+  }
+
 })
 
 //route pour la modification du compte (uniquement pour les admin)
 app.post('/modification', verifToken, (req, res) => {
-
+  if (req.user.admin == 1) {
+    connection.query(
+      'UPDATE User SET admin = ? WHERE id = ?',
+      [req.body.status, req.body.id]
+    )
+  } else if (req.user.admin == 0) {
+    res.json({ message: "Ne prend pas tes reves pour une réalité, t'es pas admin" });
+  }
 })
