@@ -139,11 +139,35 @@ app.post('/connexion', (req, res) => {
   )
 })
 
+function infoUsers(res,req) {
+  connection.query(
+    'SELECT id,nom,prenom,login,admin FROM User', (err, results) => {
+      if (err) {
+        console.log("Erreur récupération login " + err);
+        return;
+      }
+      if (results.length == 0) {
+        console.log("Erreur récup users");
+        res.json({ message: 'Erreur récup users' });
+        return;
+      }
+
+      res.json({message : "Connecté", login: req.user.login, admin: req.user.admin ,results : results});
+    }
+  )
+}
 
 //Vérifie si il est connecté
 app.post('/isConnect', verifToken, (req, res) => {
-  console.log('Déjà connecté id : ' + req.user.id + ' login : ' + req.user.login);
-  res.json({ message: 'Connecté', login: req.user.login});
+  console.log('Déjà connecté id : ' + req.user.id + ' login : ' + req.user.login + ' admin : ' + req.user.admin);
+  if (req.user.admin == 1) {
+    infoUsers(res,req);
+  } else if (req.user.admin == 0) {
+    res.json({ message: 'Connecté', login: req.user.login, admin: req.user.admin });
+
+  } else {
+    res.json({ message: "Erreur Admin identification", login: req.user.login });
+  }
 })
 
 //Verification token

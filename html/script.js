@@ -5,6 +5,8 @@ const formConnexion = document.getElementsByClassName("form-connexion");
 
 const panel = document.getElementById('panel');
 const acceuil = document.getElementById('acceuil');
+const panelUsers = document.getElementById('panel-users');
+const usersListe = document.getElementById('users');
 // BOUTONS
 const connexionBtn = document.getElementById('connexion-btn');
 const inscriptionBtn = document.getElementById('inscription-btn');
@@ -27,6 +29,72 @@ const inputModifierPassword = document.getElementById('input-modifier-password')
 //MODIFIER TEXT
 const nomUtilisateur = document.getElementById('nomUtilisateur');
 
+//FONCTION
+function affichageUsers(users,data) {
+    //console.log(users);
+    users.forEach(element => {
+        if (data.login == element.login) return;//Eviter d'afficher ses propres infos
+            
+        //console.log(element);
+        //usersListe
+        const li = document.createElement('li');
+        const ul = document.createElement('ul');
+        const id = document.createElement('li');
+        const nom = document.createElement('li');
+        const prenom = document.createElement('li');
+        const login = document.createElement('li');
+
+        const suppBtn = document.createElement('input');
+        suppBtn.type = 'button';
+        suppBtn.value = 'supp';
+
+        const powerBtn = document.createElement('input');
+        powerBtn.type = 'button';
+        powerBtn.addEventListener('click', () => {
+
+
+
+
+
+
+
+
+
+
+
+                //AJOUTER LES BTN SUPP ET UP/DOWN
+
+
+
+
+
+            
+        })
+
+        id.innerHTML = element.id;
+        nom.innerHTML = element.nom;
+        prenom.innerHTML = element.prenom;
+        login.innerHTML = element.login;
+
+        ul.appendChild(id);
+        ul.appendChild(nom);
+        ul.appendChild(prenom);
+        ul.appendChild(login);
+
+        ul.appendChild(suppBtn);
+        if (element.admin == 1) {
+            powerBtn.value = 'rétrograder';
+        } else if (element.admin == 0) {
+            powerBtn.value = 'promouvoir';
+        }
+        ul.appendChild(powerBtn);
+
+        li.appendChild(ul);
+
+        usersListe.appendChild(li);
+    });
+}
+
 // LOAD DE LA PAGE 
 window.addEventListener('DOMContentLoaded', () => {
 
@@ -43,11 +111,18 @@ window.addEventListener('DOMContentLoaded', () => {
                 // Rafraîchir la classe depuis le serveur (plus fiable que le localStorage seul)
                 localStorage.setItem('idUsers', data.idUsers);
                 localStorage.setItem('login', data.login);
+                localStorage.setItem('admin', data.admin);
 
                 //Gerer affichage
                 panel.style.display = 'none';
                 acceuil.style.display = 'flex';
                 nomUtilisateur.innerHTML = data.login;
+
+                if (data.admin == 1) {
+                    affichageUsers(data.results,data);
+                } else {
+                    panelUsers.style.display = 'none';
+                }
 
             } else {
                 //Gerer affichage
@@ -169,7 +244,7 @@ btnDeco.addEventListener('click', () => {
 })
 
 modifierBtn.addEventListener('click', () => {
-    console.log('clicl modif');
+    console.log('clic modif');
     fetch('/modifmdp', {
         credentials: 'include',
         method: 'POST',
