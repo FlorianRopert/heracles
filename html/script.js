@@ -6,7 +6,7 @@ const formConnexion = document.getElementsByClassName("form-connexion");
 const panel = document.getElementById('panel');
 const acceuil = document.getElementById('acceuil');
 const panelUsers = document.getElementById('panel-users');
-const usersListe = document.getElementById('users');
+//const usersListe = document.getElementById('users');
 // BOUTONS
 const connexionBtn = document.getElementById('connexion-btn');
 const inscriptionBtn = document.getElementById('inscription-btn');
@@ -30,13 +30,22 @@ const inputModifierPassword = document.getElementById('input-modifier-password')
 const nomUtilisateur = document.getElementById('nomUtilisateur');
 
 //FONCTION
-function affichageUsers(users,data) {
+function affichageUsers(users, data) {
     //console.log(users);
+    if (document.getElementById('users') == null) {
+
+    } else {
+        document.getElementById('users').remove();
+    }
+    const usersListe = document.createElement('ul');
+    usersListe.id = 'users';
     users.forEach(element => {
         if (data.login == element.login) return;//Eviter d'afficher ses propres infos
-            
+
         //console.log(element);
         //usersListe
+        //users
+
         const li = document.createElement('li');
         const ul = document.createElement('ul');
         const id = document.createElement('li');
@@ -47,28 +56,48 @@ function affichageUsers(users,data) {
         const suppBtn = document.createElement('input');
         suppBtn.type = 'button';
         suppBtn.value = 'supp';
+        suppBtn.addEventListener('click', () => {
+
+            fetch('/suppression', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: element.id })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message == 'ok') {
+                        isConnect();
+                    }
+                })
+
+        })
 
         const powerBtn = document.createElement('input');
         powerBtn.type = 'button';
         powerBtn.addEventListener('click', () => {
+            let status = 0;
 
+            if (element.admin == 1) {
+                status = 0;
+            } else if (element.admin == 0) {
+                status = 1;
+            } else {
+                status = 0;
+            }
 
+            fetch('/modification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: element.id, status: status })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                    if (data.message == "ok") {
+                        isConnect();
+                    }
+                })
 
-
-
-
-
-
-
-
-
-                //AJOUTER LES BTN SUPP ET UP/DOWN
-
-
-
-
-
-            
         })
 
         id.innerHTML = element.id;
@@ -93,12 +122,10 @@ function affichageUsers(users,data) {
 
         usersListe.appendChild(li);
     });
+    panelUsers.appendChild(usersListe);
 }
 
-// LOAD DE LA PAGE 
-window.addEventListener('DOMContentLoaded', () => {
-
-
+function isConnect() {
     fetch('/isConnect', { method: 'POST' })
         .then(response => {
             if (!response.ok) {
@@ -119,7 +146,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 nomUtilisateur.innerHTML = data.login;
 
                 if (data.admin == 1) {
-                    affichageUsers(data.results,data);
+                    affichageUsers(data.results, data);
                 } else {
                     panelUsers.style.display = 'none';
                 }
@@ -132,7 +159,12 @@ window.addEventListener('DOMContentLoaded', () => {
             console.log('Impossible de vérifier la connexion :', erreur);
             //Gerer afficahge
         });
+}
 
+// LOAD DE LA PAGE 
+window.addEventListener('DOMContentLoaded', () => {
+
+    isConnect();
 
     for (let i = 0; i < formInscription.length; i++) {
         formInscription[i].style.display = 'none';

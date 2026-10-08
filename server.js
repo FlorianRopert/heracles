@@ -139,7 +139,7 @@ app.post('/connexion', (req, res) => {
   )
 })
 
-function infoUsers(res,req) {
+function infoUsers(res, req) {
   connection.query(
     'SELECT id,nom,prenom,login,admin FROM User', (err, results) => {
       if (err) {
@@ -152,7 +152,7 @@ function infoUsers(res,req) {
         return;
       }
 
-      res.json({message : "Connecté", login: req.user.login, admin: req.user.admin ,results : results});
+      res.json({ message: "Connecté", login: req.user.login, admin: req.user.admin, results: results });
     }
   )
 }
@@ -161,7 +161,7 @@ function infoUsers(res,req) {
 app.post('/isConnect', verifToken, (req, res) => {
   console.log('Déjà connecté id : ' + req.user.id + ' login : ' + req.user.login + ' admin : ' + req.user.admin);
   if (req.user.admin == 1) {
-    infoUsers(res,req);
+    infoUsers(res, req);
   } else if (req.user.admin == 0) {
     res.json({ message: 'Connecté', login: req.user.login, admin: req.user.admin });
 
@@ -217,7 +217,15 @@ app.post('/modification', verifToken, (req, res) => {
   if (req.user.admin == 1) {
     connection.query(
       'UPDATE User SET admin = ? WHERE id = ? ',
-      [req.body.status, req.body.id]
+      [req.body.status, req.body.id], (err, results) => {
+        if (err) {
+          console.log("Erreur " + err);
+          return;
+        }
+        if (results) {
+          res.json({message : "ok"});
+        }
+      }
     )
   } else if (req.user.admin == 0) {
     res.json({ message: "Ne prend pas tes reves pour une réalité, t'es pas admin" });
