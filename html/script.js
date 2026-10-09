@@ -152,6 +152,8 @@ function isConnect() {
                 }
 
             } else {
+                panelUsers.style.display = 'none';
+                acceuil.style.display = 'none';
                 //Gerer affichage
             }
         })
@@ -271,6 +273,7 @@ connexionBtn.addEventListener('click', () => {
 btnDeco.addEventListener('click', () => {
     fetch('/deconnexion', { method: 'POST' })
         .then(() => {
+            localStorage.clear();
             location.reload();
         })
 })
