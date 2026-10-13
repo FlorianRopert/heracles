@@ -61,11 +61,17 @@ app.post('/inscription', (req, res) => {
     res.json({ message: 'Email invalide' });
     return;
   }
+   if (/[!@#$%^&*(),.?":{}|<>]/.test(req.body.nom) || /[!@#$%^&*(),.?":{}|<>]/.test(req.body.prenom) || /[!@#$%^&*(),.?":{}|<>]/.test(req.body.username)) {
+    res.json({ message: 'il ne faut pas de caractere speciaux dans le login /prenom /nom', error: "Carractère spécial" });
+    return;
+  }
+  
 
   //Hachage mot de passe 
   bcrypt.hash(req.body.password, 10)
     .then(hash => {
       //Insertion dans la base
+      
       connection.query(
         'INSERT INTO User(nom,prenom,mail,password,login,admin) VALUES(?,?,?,?,?,false)',
         [req.body.nom, req.body.prenom, req.body.email, hash, req.body.username],
