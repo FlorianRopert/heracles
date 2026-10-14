@@ -37,6 +37,9 @@ app.listen(3000, () => {
 app.post('/inscription', (req, res) => {
   //console.log(req.body);
   //Verification insertion
+  if ([req.body.nom, req.body.prenom, req.body.email, req.body.username, req.body.password].some(v => typeof v !== 'string' || !v.trim())) {
+    return res.status(400).json({ message: 'Champs invalides ou manquants' });
+  }
   if (req.body.password.length < 8) {
     res.json({ message: 'Mot de passe invalide', error: "length" });
     return;
@@ -80,6 +83,9 @@ app.post('/inscription', (req, res) => {
             console.log('Erreur Insertion dans la base ' + err);
             res.status(500).json({ message: 'Erreur bdd insertion', erreur: err });
             return;
+          }
+          if (rows.length > 0) {
+            return res.status(409).json({ message: 'Ce login est déjà utilisé' });
           }
           console.log('Insertion réussi');
           res.json({ message: 'Inscription reussie !' });
@@ -176,6 +182,7 @@ app.post('/isConnect', verifToken, (req, res) => {
   }
 })
 
+
 //Verification token
 function verifToken(req, res, next) {
   const token = req.cookies.authtoken;
@@ -194,7 +201,22 @@ function verifToken(req, res, next) {
     return res.status(401).json({ message: 'Token invalide ou expiré' });
   }
 }
-
+function isAdmin(id){
+  connection.query(
+      'SELECT id,admin FROM User WHERE id = ?', [id], (err, results) => {
+        if (err) {
+          console.log("Erreur récupération de l'admin " + err);
+          return;
+        }
+        if (results.admin == 0) {
+          return false;
+        }
+        if (results.admin == 1) {
+          return true;
+        } 
+     }
+  )
+}
 app.post('/deconnexion', verifToken, (req, res) => {
   res.clearCookie('authtoken');
   console.log("l'id " + req.user.id + " se déco");
@@ -204,7 +226,7 @@ app.post('/deconnexion', verifToken, (req, res) => {
 //Route pour la suppression du compte (uniquement pour les admin)
 app.post('/suppression', verifToken, (req, res) => {
 
-  if (req.user.admin == 1) {
+  if (isAdmin(req.user.id) === true) {
     connection.query(
       'DELETE FROM User WHERE id = ? ',
       [req.body.id], (err) => {
@@ -212,7 +234,7 @@ app.post('/suppression', verifToken, (req, res) => {
         res.json({ message: 'ok' });
       }
     )
-  } else if (req.user.admin == 0) {
+  } else if (isAdmin(req.user.id) === false) {
     res.json({ message: "Ne prend pas tes reves pour une réalité, t'es pas admin" });
   }
 
@@ -220,7 +242,7 @@ app.post('/suppression', verifToken, (req, res) => {
 
 //route pour la modification du compte (uniquement pour les admin)
 app.post('/modification', verifToken, (req, res) => {
-  if (req.user.admin == 1) {
+  if (isAdmin(req.user.id) === true) {
     connection.query(
       'UPDATE User SET admin = ? WHERE id = ? ',
       [req.body.status, req.body.id], (err, results) => {
@@ -233,7 +255,7 @@ app.post('/modification', verifToken, (req, res) => {
         }
       }
     )
-  } else if (req.user.admin == 0) {
+  } else if (isAdmin(req.user.id) === false) {
     res.json({ message: "Ne prend pas tes reves pour une réalité, t'es pas admin" });
   }
 })
